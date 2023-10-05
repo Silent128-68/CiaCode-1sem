@@ -61,7 +61,7 @@ class Program
         Console.WriteLine();
 
         Console.Write("Введите число A: ");
-        int A = int.Parse(Console.ReadLine());
+        int A = Convert.ToInt32(Console.ReadLine());
 
         Console.Write("Введите число B: ");
         int B = int.Parse(Console.ReadLine());
@@ -76,19 +76,12 @@ class Program
                 closestNumber = i;
                 break;
             }
-            else if (zeroes > B && zeroes - B < minDistance)
-            {
-                closestNumber = i;
-                minDistance = zeroes - B;
-            }
+            //else if (zeroes > B && zeroes - B < minDistance)
+            //{
+            //    closestNumber = i;
+            //    minDistance = zeroes - B;
+            //}
         }
-        if (closestNumber == int.MaxValue)
-        {
-            Console.WriteLine("На отрезке от {0} до бесконечности нет чисел с количеством значащих нулей равным {1}.", A, B);
-        }
-        else
-        {
             Console.WriteLine("Ближайшее число к {0} с количеством значащих нулей равным {1}: {2}", A, B, closestNumber);
-        }
     }
 }
