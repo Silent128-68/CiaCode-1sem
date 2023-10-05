@@ -2,13 +2,13 @@ using System;
 
 class Program
 {
-    static void PrintNumbersDescending(int num)
+    static void PrintNumbers(int num)
     {
         if (num <= 0)
             return;
         
         Console.Write(num + " ");
-        PrintNumbersDescending(num - 1);
+        PrintNumbers(num - 1);
     }
     static void Main(string[] args)
     {
@@ -17,7 +17,7 @@ class Program
 
         if (n >= 1000)
         {
-            PrintNumbersDescending(n);
+            PrintNumbers(n);
         }
         else
         {
