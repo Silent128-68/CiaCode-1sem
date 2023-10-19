@@ -5,7 +5,7 @@ class Program
     static void Main()
     {
         Console.Write("Введите размерность массива: ");
-        int n = int.Parse(Console.ReadLine()); // считываем размерность массива с клавиатуры
+        int n = int.Parse(Console.ReadLine()); 
 
         int[,] array = new int[n, n]; // создаем двумерный массив размером n x n
 
@@ -25,11 +25,11 @@ class Program
 
         for (int j = 0; j < n; j++)
         {
-            int lastnumber = -1; // номер последнего нечетного элемента, изначально -1
+            int lastnumber = -1; 
 
             for (int i = 0; i < n; i++)
             {
-                if (array[i, j] % 2 != 0) // если элемент нечетный
+                if (array[i, j] % 2 != 0) 
                 {
                     lastnumber = i; // обновляем номер последнего нечетного элемента
                 }
