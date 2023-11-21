@@ -3,72 +3,98 @@ using System.Collections.Generic;
 
 class Program
 {
+    static int[][] Generate(int n, int m)
+    {
+        int[][] arr = new int[n][];
+
+        for (int i = 0; i < n; i++)
+        {
+            arr[i] = new int[m];
+            for (int j = 0; j < m; j++)
+            {
+                Console.Write($"arr[{i}][{j}]: ");
+                if (int.TryParse(Console.ReadLine(), out int value))
+                {
+                    arr[i][j] = value;
+                }
+                else
+                {
+                    Console.WriteLine("Введите целое число.");
+                    j--;
+                }
+            }
+        }
+
+        return arr;
+    }
+
     static void Print(int[][] arr)
     {
-        for (int i = 0; i < arr.GetLength(0); i++)
+        for (int i = 0; i < arr.Length; i++)
         {
-            int cols = arr[i].Length;
-            for (int j = 0; j < cols; j++)
+            for (int j = 0; j < arr[i].Length; j++)
+            {
                 Console.Write(arr[i][j] + "\t");
-
+            }
             Console.WriteLine();
         }
     }
 
-    static bool Negative(int[][] arr, int column)
+    static bool HasNegatives(int[][] arr, int column)
     {
-        for (int i = 0; i < arr.GetLength(0); i++) 
-            if (arr[i][column] < 0) // Если найден отрицательный элемент в столбце
-                return true;        // Возвращаем true и прекращаем проверку столбца
-
-        return false; 
+        for (int i = 0; i < arr.Length; i++)
+        {
+            if (arr[i][column] < 0)
+            {
+                return true;
+            }
+        }
+        return false;
     }
-    
+
     static void Main()
     {
         Console.Write("n = ");
         int n = int.Parse(Console.ReadLine());
         Console.Write("m = ");
-        int m = int.Parse(Console.ReadLine()); 
+        int m = int.Parse(Console.ReadLine());
 
-        int[][] matrix = new int[n][]; 
-        for (int i = 0; i < n; i++)
-        {
-            matrix[i] = new int[m]; // Создание нового массива для каждой строки матрицы
-            for (int j = 0; j < m; j++)
-            {
-                Console.Write("Введите элемент [{0}][{1}]: ", i, j);
-                matrix[i][j] = int.Parse(Console.ReadLine()); 
-            }
-        }
+        int[][] matrix = Generate(n, m);
+        Print(matrix);
 
-        Print(matrix); 
-
-        List<int> WithoutNegatives = new List<int>(); // Создание списка для хранения индексов столбцов без отрицательных элементов
+        List<int> withoutNegatives = new List<int>();
         for (int i = 0; i < m; i++)
-            if (!Negative(matrix, i))       // Если столбец не содержит отрицательных элементов
-                WithoutNegatives.Add(i);    // Добавляем индекс столбца в список
-
-        if (WithoutNegatives.Count == 0)
-            Console.WriteLine("Нет столбцов без отрицательных элементов"); 
+            if (!HasNegatives(matrix, i))
+                withoutNegatives.Add(i);
+            
+        
+        if (withoutNegatives.Count == 0)
+        {
+            Console.WriteLine("Нет столбцов без отрицательных элементов");
+        }
         else
         {
-            int newColumnsCount = m + WithoutNegatives.Count; // Вычисление нового количества столбцов матрицы с учетом добавленных столбцов
+            int newColumnsCount = m + withoutNegatives.Count;  // количество столбцов в новой матрице с пустыми
+
             for (int i = 0; i < n; i++)
             {
-                int[] newRow = new int[newColumnsCount]; // Создание новой строки с учетом нового количества столбцов
-                int index = 0;
+                int[] newRow = new int[newColumnsCount];  // новая строка в новой матрице
+
+                int index = 0;  // индекс для заполнения элементов в новой строке
+
                 for (int j = 0; j < m; j++)
                 {
-                    newRow[index] = matrix[i][j]; // Копирование элемента из исходной матрицы в новую строку
+                    newRow[index] = matrix[i][j];  // копирования значения из начальной матрицы в новую строку
                     index++;
-                    if (WithoutNegatives.Contains(j)) // Если текущий столбец был добавлен в список WithoutNegatives
+
+                    if (withoutNegatives.Contains(j))
                     {
-                        newRow[index] = 0; // Добавляем нулевой элемент в новую строку
+                        newRow[index] = 0;  // добаввляем пустой столбец с значением 0
                         index++;
                     }
                 }
-                matrix[i] = newRow; // Замена старой строки на новую в матрице
+
+                matrix[i] = newRow;  // замена текущей строки в начальной матрице на новую строку с пустыми столбцами
             }
 
             Console.WriteLine();
