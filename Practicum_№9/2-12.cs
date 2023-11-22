@@ -1,58 +1,20 @@
-using System;
-using System.IO;
+using System; // Подключение пространства имен System для работы с базовыми типами данных и ввода/вывода
+using System.IO; // Подключение пространства имен System.IO для работы с файлами
 
 class Program
 {
-    // Метод для сравнения компонент файлов попарно
-    static bool Compare(string file1Path, string file2Path)
-    {
-        // Проверка на существование файлов
-        if (!File.Exists(file1Path) || !File.Exists(file2Path))
-        {
-            return false;
-        }
-
-        // Открываем файлы с помощью StreamReader
-        using (StreamReader reader1 = new StreamReader(file1Path))
-        using (StreamReader reader2 = new StreamReader(file2Path))
-        {
-            string line1;
-            string line2;
-            bool filesMatch = true;
-
-            // Сравниваем строки поочередно
-            while ((line1 = reader1.ReadLine()) != null && (line2 = reader2.ReadLine()) != null)
-            {
-                if (line1 != line2)
-                {
-                    // Выводим различия в строках, если они не совпадают
-                    Console.WriteLine($"Различие в строках:\nФайл 1: {line1}\nФайл 2: {line2}");
-                    filesMatch = false;
-                }
-            }
-
-            // Выводим сообщение, если строки совпадают
-            if (filesMatch)
-            {
-                Console.WriteLine("Строки файлов попарно совпадают.");
-            }
-
-            return filesMatch;
-        }
-    }
-
     // Метод для вывода позиций несовпадающих символов
     static void PrintDifferencePositions(string line1, string line2, int lineIndex)
     {
-        Console.Write($"Различие в символах строки {lineIndex + 1}: ");
-        for (int i = 0; i < Math.Min(line1.Length, line2.Length); i++)
+        Console.Write($"Различие в символах строки {lineIndex + 1}: "); // Вывод номера строки с различиями
+        for (int i = 0; i < Math.Min(line1.Length, line2.Length); i++) // Цикл по минимальной длине строк
         {
-            if (line1[i] != line2[i])
+            if (line1[i] != line2[i]) // Проверка символов на несовпадение
             {
-                Console.Write($"{i + 1} ");
+                Console.Write($"{i + 1} "); // Вывод позиции несовпадающего символа
             }
         }
-        Console.WriteLine();
+        Console.WriteLine(); // Переход на новую строку после вывода всех позиций несовпадений
     }
 
     // Метод для нахождения различий между файлами
@@ -61,7 +23,7 @@ class Program
         // Проверка на существование файлов
         if (!File.Exists(file1Path) || !File.Exists(file2Path))
         {
-            Console.WriteLine("Один или оба файла не существуют.");
+            Console.WriteLine("Один или оба файла не существуют."); // Вывод сообщения об отсутствии файлов
             return;
         }
 
@@ -69,14 +31,14 @@ class Program
         using (StreamReader reader1 = new StreamReader(file1Path))
         using (StreamReader reader2 = new StreamReader(file2Path))
         {
-            string line1;
-            string line2;
-            int lineIndex = 0;
+            string line1; // Переменная для хранения строки из первого файла
+            string line2; // Переменная для хранения строки из второго файла
+            int lineIndex = 0; // Счетчик строк для вывода номера строки с различиями
 
             // Сравниваем строки поочередно
             while ((line1 = reader1.ReadLine()) != null)
             {
-                line2 = reader2.ReadLine();
+                line2 = reader2.ReadLine(); // Считываем строку из второго файла
 
                 // Если один файл короче другого, выводим сообщение и прекращаем сравнение
                 if (line2 == null)
@@ -88,10 +50,10 @@ class Program
                 // Выводим различия в символах, если строки не совпадают
                 if (line1 != line2)
                 {
-                    PrintDifferencePositions(line1, line2, lineIndex);
+                    PrintDifferencePositions(line1, line2, lineIndex); // Вызов метода для вывода позиций различий
                 }
 
-                lineIndex++;
+                lineIndex++; // Увеличение номера текущей строки
             }
 
             // Если файл 2 имеет больше строк, чем файл 1, выводим дополнительные строки
@@ -104,12 +66,12 @@ class Program
 
     static void Main()
     {
-        Console.WriteLine("Введите путь к первому файлу:");
-        string file1Path = Console.ReadLine();
+        Console.WriteLine("Введите путь к первому файлу:"); // Приглашение к вводу пути к первому файлу
+        string file1Path = Console.ReadLine(); // Чтение пути к первому файлу с консоли
 
-        Console.WriteLine("Введите путь ко второму файлу:");
-        string file2Path = Console.ReadLine();
+        Console.WriteLine("Введите путь ко второму файлу:"); // Приглашение к вводу пути ко второму файлу
+        string file2Path = Console.ReadLine(); // Чтение пути ко второму файлу с консоли
 
-        FindDifferences(file1Path, file2Path);
+        FindDifferences(file1Path, file2Path); // Вызов метода для поиска различий между файлами
     }
 }
