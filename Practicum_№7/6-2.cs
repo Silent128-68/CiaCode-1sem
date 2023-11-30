@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 class Program
 {
-    // Метод для генерации двумерного массива заданного размера с вводом значений с клавиатуры
+    // Метод для генерации двумерного массива
     static int[][] Generate(int n, int m)
     {
         int[][] arr = new int[n][];
@@ -22,7 +22,7 @@ class Program
                 else
                 {
                     Console.WriteLine("Введите целое число.");
-                    j--;  // Повтор ввода для того же столбца
+                    j--;  
                 }
             }
         }
@@ -63,45 +63,42 @@ class Program
         Console.Write("m = ");
         int m = int.Parse(Console.ReadLine());
 
-        int[][] matrix = Generate(n, m);  // Генерация и ввод двумерного массива
-        Print(matrix);  // Вывод начальной матрицы
+        int[][] matrix = Generate(n, m);
+        Print(matrix);
 
         List<int> withoutNegatives = new List<int>();
         for (int i = 0; i < m; i++)
             if (!HasNegatives(matrix, i))
                 withoutNegatives.Add(i);
-            
+
         if (withoutNegatives.Count == 0)
         {
             Console.WriteLine("Нет столбцов без отрицательных элементов");
         }
         else
         {
-            int newColumnsCount = m + withoutNegatives.Count;  // количество столбцов в новой матрице с пустыми
-
+            // Обработка строк и вставка пустого столбца после столбца без отрицательных элементов с использованием сдвига
             for (int i = 0; i < n; i++)
             {
-                int[] newRow = new int[newColumnsCount];  // новая строка в новой матрице
+                // Создание новой строки в новой матрице
+                int[] newRow = new int[m + withoutNegatives.Count];
+                int index = 0;  
 
-                int index = 0;  // индекс для заполнения элементов в новой строке
-
+                // Копирование значений из начальной матрицы в новую строку с учетом сдвига
                 for (int j = 0; j < m; j++)
                 {
-                    newRow[index] = matrix[i][j];  // копирование значения из начальной матрицы в новую строку
-                    index++;
+                    newRow[index++] = matrix[i][j];
 
+                    // Вставка пустого столбца с значением 0 после столбца без отрицательных элементов
                     if (withoutNegatives.Contains(j))
                     {
-                        newRow[index] = 0;  // добавление пустого столбца с значением 0
-                        index++;
+                        newRow[index++] = 0;
                     }
                 }
-
-                matrix[i] = newRow;  // замена текущей строки в начальной матрице на новую строку с пустыми столбцами
+                matrix[i] = newRow;
             }
-
             Console.WriteLine();
-            Print(matrix);  // Вывод измененной матрицы
+            Print(matrix);
         }
     }
 }
