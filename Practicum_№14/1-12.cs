@@ -1,99 +1,154 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 // Определение структуры SPoint для хранения трехмерных координат точки
 struct SPoint
 {
-    // Свойства X, Y, Z для координат точки, только для чтения
-    public double X { get; }
-    public double Y { get; }
-    public double Z { get; }
+    public double X;
+    public double Y;
+    public double Z;
 
-    // Конструктор для инициализации координат точки
-    public SPoint(double x, double y, double z)
+    // Статическое свойство Zero, возвращающее новый экземпляр SPoint с нулевыми координатами
+    public static SPoint Zero => new SPoint();
+}
+
+class Program
+{
+    // Метод для считывания точек из файла
+    static List<SPoint> ReadPointsFromFile(string filePath)
     {
-        X = x;
-        Y = y;
-        Z = z;
+        List<SPoint> points = new List<SPoint>();
+
+        foreach (var line in File.ReadLines(filePath))
+        {
+            // Попытка парсинга строки в структуру SPoint
+            if (TryParseCoordinates(line, out SPoint point))
+            {
+                points.Add(point);
+            }
+        }
+
+        return points;
     }
 
-    // Метод для вычисления расстояния между текущей точкой и другой точкой
-    public double DistanceTo(SPoint other)
+    // Метод для парсинга строки с координатами в структуру SPoint
+    static bool TryParseCoordinates(string line, out SPoint point)
     {
-        double dx = X - other.X;
-        double dy = Y - other.Y;
-        double dz = Z - other.Z;
-        return Math.Sqrt(dx * dx + dy * dy + dz * dz);
+        string[] coordinates = line.Split(' ');
+
+        // Новый экземпляр SPoint с нулевыми координатами
+        point = SPoint.Zero;
+
+        // Проверка наличия трех координат и их успешного парсинга
+        if (coordinates.Length == 3 &&
+            double.TryParse(coordinates[0], out point.X) &&
+            double.TryParse(coordinates[1], out point.Y) &&
+            double.TryParse(coordinates[2], out point.Z))
+        {
+            return true;
+        }
+        return false;
     }
 
-    // Метод для подсчета количества точек внутри шара с центром в текущей точке
-    public int CountPointsInside(List<SPoint> points, double radius)
+    // Метод для считывания радиуса с клавиатуры
+    static bool TryReadRadius(out double radius)
     {
-        int count = 0;
+        return double.TryParse(Console.ReadLine(), out radius);
+    }
+
+    // Метод для поиска оптимальных центров шара с минимальным числом точек внутри
+    static List<SPoint> FindOptimalCenters(List<SPoint> points, double radius, ref double minPointsCount)
+    {
+        List<SPoint> optimalCenters = new List<SPoint>(points.Count);
+
+        if (points.Count == 0)
+        {
+            Console.WriteLine("Ошибка: Множество точек не может быть пустым.");
+            Environment.Exit(1);
+        }
+
+        foreach (SPoint center in points)
+        {
+            // Подсчет текущего числа точек внутри шара для данного центра
+            double currentPointsCount = CountPointsInsideSphere(center, points, radius);
+
+            if (currentPointsCount < minPointsCount)
+            {
+                minPointsCount = currentPointsCount;
+
+                // Очистка списка оптимальных центров и добавление текущего центра
+                optimalCenters.Clear();
+                optimalCenters.Add(center);
+            }
+            else if (currentPointsCount == minPointsCount)
+            {
+                // Добавление центра к списку оптимальных центров при равенстве количества точек
+                optimalCenters.Add(center);
+            }
+        }
+
+        return optimalCenters;
+    }
+
+    // Метод для записи центров в файл
+    static void WriteCentersToFile(string filePath, List<SPoint> centers)
+    {
+        using (StreamWriter writer = new StreamWriter(filePath))
+        {
+            foreach (SPoint center in centers)
+            {
+                writer.Write($"{center.X} {center.Y} {center.Z}\n");
+            }
+        }
+    }
+
+    // Метод для подсчета числа точек внутри шара для заданного центра
+    static double CountPointsInsideSphere(SPoint center, List<SPoint> points, double radius)
+    {
+        double count = 0;
+
         foreach (SPoint point in points)
         {
-            if (this.DistanceTo(point) <= radius)
+            double distance = CalculateDistance(center, point);
+
+            if (distance <= radius)
             {
                 count++;
             }
         }
         return count;
     }
-}
 
-class Program
-{
-    // Метод для поиска оптимального центра шара с минимальным числом точек внутри
-    static SPoint FindOptimalCenter(List<SPoint> points, double radius)
+    // Метод для вычисления расстояния между двумя точками
+    static double CalculateDistance(SPoint point1, SPoint point2)
     {
-        int n = points.Count;
+        double dx = point1.X - point2.X;
+        double dy = point1.Y - point2.Y;
+        double dz = point1.Z - point2.Z;
 
-        // Проверка на пустое множество точек
-        if (n == 0)
-        {
-            throw new ArgumentException("Множество точек не может быть пустым.");
-        }
-
-        // Инициализация оптимального центра и минимального числа точек внутри
-        SPoint optimalCenter = points[0];
-        int minPointsContained = optimalCenter.CountPointsInside(points, radius);
-
-        // Поиск оптимального центра
-        for (int i = 1; i < n; i++)
-        {
-            int pointsContained = points[i].CountPointsInside(points, radius);
-            if (pointsContained < minPointsContained)
-            {
-                optimalCenter = points[i];
-                minPointsContained = pointsContained;
-            }
-        }
-
-        return optimalCenter;
+        return Math.Sqrt(dx * dx + dy * dy + dz * dz);
     }
     
-    // Основной метод программы
     static void Main()
     {
-        List<SPoint> points = new List<SPoint>();
-        
-        // Ввод координат точек с клавиатуры
-        Console.WriteLine("Введите координаты точек (X Y Z):");
-        for (int i = 0; i < 6; i++)
+        List<SPoint> points = ReadPointsFromFile("input.txt");
+
+        double radius;
+
+        Console.Write("Введите радиус шара: ");
+        while (!TryReadRadius(out radius))
         {
-            string[] coordinates = Console.ReadLine().Split();
-            double x = double.Parse(coordinates[0]);
-            double y = double.Parse(coordinates[1]);
-            double z = double.Parse(coordinates[2]);
-            points.Add(new SPoint(x, y, z));
+            Console.WriteLine("Некорректный ввод. Попробуйте еще раз.");
         }
 
-        // Ввод радиуса с клавиатуры
-        Console.WriteLine("Введите радиус шара:");
-        double radius = double.Parse(Console.ReadLine());
+        double minPointsCount = double.MaxValue;
 
-        // Поиск и вывод оптимального центра
-        SPoint optimalCenter = FindOptimalCenter(points, radius);
-        Console.WriteLine($"Оптимальный центр: ({optimalCenter.X}, {optimalCenter.Y}, {optimalCenter.Z})");
+        // Поиск оптимальных центров с минимальным числом точек внутри шара
+        List<SPoint> optimalCenters = FindOptimalCenters(points, radius, ref minPointsCount);
+
+        WriteCentersToFile("output.txt", optimalCenters);
+
+        Console.WriteLine($"Оптимальные центры с минимальным числом точек ({minPointsCount}) записаны в файл 'output.txt'.");
     }
 }
