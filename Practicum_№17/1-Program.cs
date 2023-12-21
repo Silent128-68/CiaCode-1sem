@@ -23,17 +23,17 @@ namespace MyNamespace
             Console.WriteLine($"Индексация - x: {p1[0]}, y: {p1[1]}"); // Использование индексатора
 
             // Использование оператора ++ для начальных значений
-            Console.WriteLine($"++p1: {++p1.InitialX}, {++p1.InitialY}");
+            Console.WriteLine($"++p1: {++p1.X}, {++p1.Y}");
 
             // Использование оператора -- для начальных значений
-            Console.WriteLine($"--p1: {--p1.InitialX}, {--p1.InitialY}");
+            Console.WriteLine($"--p1: {--p1.X}, {--p1.Y}");
 
             Console.WriteLine($"Координаты p1 равны? : {Point.IsTrue(p1)}"); // Использование оператора true
             Console.WriteLine($"Координаты p1 не равны? : {Point.IsFalse(p1)}"); // Использование оператора false
 
             // Использование оператора + для добавления скаляра
-            p1 = 5 + p1;
-            p1.Display();
+            Point kk = 5 + p1;
+            kk.Display();
         }
     }
 }
