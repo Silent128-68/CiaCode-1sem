@@ -1,88 +1,112 @@
-using System;
-using System.Diagnostics;
-using System.IO;
+using System; 
+using System.IO; 
+using System.Diagnostics; 
 
-class Program
+class Program 
 {
-    // Функция прямого поиска подстроки в строке
-    static int DirectSearch(string text, char target)
+    static int CustomIndexOf(string source, string pattern, int start) // Определение метода для прямого поиска подстроки в строке.
     {
-        for (int i = 0; i < text.Length; i++)
-        {
-            // Если символ равен целевому символу, возвращаем текущую позицию
-            if (text[i] == target)
-                return i;
-        }
-        return -1; // Буква не найдена
-    }
+        int sourceLength = source.Length; // Получение длины исходной строки.
+        int patternLength = pattern.Length; // Получение длины искомой подстроки.
+        int i, j; // Объявление переменных для использования в циклах.
 
-    // Функция поиска подстроки методом Рабина-Карпа
-    static int RabinKarpSearch(string text, char target)
-    {
-        int targetHash = target; // Преобразование символа в числовое значение
-
-        // Вычисление хеша для первого окна текста
-        int windowHash = 0;
-        for (int i = 0; i < 1; i++) // Используем 1, так как ищем одиночный символ
+        for (i = start; i < sourceLength;) // Цикл для итерации по исходной строке, начиная с указанной позиции.
         {
-            windowHash += text[i];
-        }
-
-        // Проход по тексту с использованием сдвига окна и пересчета хеша
-        for (int i = 0; i <= text.Length - 1; i++)
-        {
-            // Если хеш окна совпадает с хешем целевого символа
-            if (windowHash == targetHash)
+            if (source[i] == pattern[0]) // Проверка, совпадает ли первый символ подстроки с текущим символом исходной строки.
             {
-                // Проверка символов в случае совпадения хешей
-                int j;
-                for (j = 0; j < 1; j++) // Используем 1, так как ищем одиночный символ
+                for (j = 1; j < patternLength && i + j < sourceLength; j++) // Вложенный цикл для сравнения остальных символов подстроки.
                 {
-                    if (text[i + j] != target)
+                    if (pattern[j] != source[i + j]) // Если символы не совпадают, выходим из внутреннего цикла.
+                    {
                         break;
+                    }
                 }
 
-                // Если символ найден, возвращаем индекс начала подстроки
-                if (j == 1)
-                    return i;
+                if (j == pattern.Length) // Если вложенный цикл дошел до конца подстроки, значит, подстрока найдена.
+                {
+                    return i; // Возвращаем индекс начала найденной подстроки в исходной строке.
+                }
+                else
+                {
+                    i++; // Иначе, увеличиваем индекс и продолжаем поиск.
+                }
             }
-
-            // Сдвиг окна и пересчет хеша
-            if (i < text.Length - 1)
+            else
             {
-                windowHash = (windowHash - text[i]) + text[i + 1];
+                i++; // Если текущие символы не совпадают, увеличиваем индекс и продолжаем поиск.
             }
         }
 
-        return -1; // Подстрока не найдена
+        return -1; // Если подстрока не найдена, возвращаем -1.
     }
 
-    // Точка входа в программу
-    static void Main()
+    static void RabinKarpAlgorithm(string substring, string sourceString, StreamWriter writer) // Определение метода для алгоритма Рабина-Карпа.
     {
-        string filePath = "text.txt";
-        string sourceText = File.ReadAllText(filePath); 
-        char targetChar = 'ф';
+        int substringLength = substring.Length; 
+        int sourceLength = sourceString.Length; 
+        const long P = 37; // Константа для вычисления хеша.
 
-        // Прямой поиск подстроки в строке
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
+        long[] pwp = new long[sourceLength]; // Массив для хранения степеней P.
+        pwp[0] = 1; // Первая степень P.
 
-        int indexDirectSearch = DirectSearch(sourceText, targetChar);
+        for (int i = 1; i < sourceLength; i++) // Цикл для вычисления степеней P.
+        {
+            pwp[i] = pwp[i - 1] * P;
+        }
 
-        stopwatch.Stop();
-        Console.WriteLine($"Прямой поиск: Искомая буква найдена на позиции {indexDirectSearch}, время выполнения: {stopwatch.Elapsed}");
+        long[] h = new long[sourceLength]; // Массив для хранения хешей префиксов исходной строки.
 
-        // Алгоритм Карпа-Рабина
-        stopwatch.Restart();
+        for (int i = 0; i < sourceLength; i++) // Цикл для вычисления хешей префиксов.
+        {
+            h[i] = (sourceString[i] - 'a' + 1) * pwp[i];
+            if (i > 0)
+                h[i] += h[i - 1];
+        }
 
-        int indexRabinKarp = RabinKarpSearch(sourceText, targetChar);
+        long h_s = 0; // Хеш искомой подстроки.
 
-        stopwatch.Stop();
-        Console.WriteLine($"Алгоритм Карпа-Рабина: Искомая буква найдена на позиции {indexRabinKarp}, время выполнения: {stopwatch.Elapsed}");
+        for (int i = 0; i < substringLength; i++) // Цикл для вычисления хеша искомой подстроки.
+        {
+            h_s += (substring[i] - 'a' + 1) * pwp[i];
+        }
+
+        for (int i = 0; i + substringLength - 1 < sourceLength; i++) // Цикл для поиска подстроки в строке.
+        {
+            long cur_h = h[i + substringLength - 1];
+            if (i > 0)
+            {
+                cur_h -= h[i - 1];
+            }
+
+            if (cur_h == h_s * pwp[i]) // Если хеши совпадают, значит, подстрока найдена.
+            {
+                break;
+            }
+        }
+    }
+
+    static void Main() 
+    {
+        using (StreamReader fileIn = new StreamReader("text.txt")) 
+        using (StreamWriter writer = new StreamWriter("output.txt")) 
+        {
+            string substring = fileIn.ReadLine();
+            string sourceString = fileIn.ReadToEnd(); 
+
+            Stopwatch timer = new Stopwatch(); // Создание объекта для измерения времени.
+            timer.Start(); // Начало отсчета времени.
+
+            RabinKarpAlgorithm(substring, sourceString, writer); // Вызов метода для алгоритма Рабина-Карпа.
+
+            timer.Stop(); // Остановка отсчета времени.
+            writer.WriteLine("{0, -15} {1, -30}", "Алгоритм Рабина-Карпа\t\t\t", timer.ElapsedTicks); 
+
+            timer.Start();
+            CustomIndexOf(sourceString, substring, 0); // Вызов метода для прямого поиска.
+            timer.Stop(); 
+            writer.WriteLine("{0, -15} {1, -30}", "Прямой поиск подстроки в строке ", timer.ElapsedTicks); 
+
+            Console.WriteLine("Результаты записаны в файл output.txt"); 
+        }
     }
 }
-
-// Если подстрока состоит из 1го символа, а исходная строка состоит из большого количества символо, зачастую алгоритм прямого поиска будет более эффективным, т.к. прямой поиск будет последовательно
-// сравнивать каждый символ подстроки с каждым символом текста и алгоритм будет иметь линейную временную сложность O(n), а алгоритм Рабина-Карпа будет более избыточным, т.к он включает допольнительные
-// вычисления хэша, что делает его менее эффективным при поиске одиночных символов
