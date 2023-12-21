@@ -6,7 +6,6 @@ namespace MyNamespace
     {
         // Поля класса Point
         private int x, y;
-        public int initialX, initialY;
 
         // Конструктор без параметров, инициализирующий координаты нулями
         public Point() : this(0, 0) { }
@@ -16,8 +15,6 @@ namespace MyNamespace
         {
             this.x = x;
             this.y = y;
-            this.initialX = x;
-            this.initialY = y;
         }
 
         // Метод вывода координат точки на экран
@@ -51,20 +48,6 @@ namespace MyNamespace
         {
             get { return y; }
             set { y = value; }
-        }
-
-        // Свойство для доступа к начальному значению x (только чтение)
-        public int InitialX
-        {
-            get { return initialX; }
-            set { initialX = value; }
-        }
-
-        // Свойство для доступа к начальному значению y (только чтение)
-        public int InitialY
-        {
-            get { return initialY; }
-            set { initialY = value; }
         }
 
         // Свойство для умножения координат на скаляр (доступное только для записи)
@@ -104,17 +87,19 @@ namespace MyNamespace
         // Перегрузка оператора ++ для увеличения значений x и y на 1
         public static Point operator ++(Point point)
         {
-            point.x++;
-            point.y++;
-            return point;
+            Point temp = new Point(point.x, point.y);
+            temp.x = point.x + 1;
+            temp.y = point.y + 1;
+            return temp;
         }
 
         // Перегрузка оператора -- для уменьшения значений x и y на 1
         public static Point operator --(Point point)
         {
-            point.x--;
-            point.y--;
-            return point;
+            Point temp = new Point(point.x, point.y);
+            temp.x = point.x - 1;
+            temp.y = point.y - 1;
+            return temp;
         }
 
         // Перегрузка оператора true: возвращает true, если x и y совпадают
@@ -132,9 +117,10 @@ namespace MyNamespace
         // Перегрузка оператора + для добавления скаляра к x и y
         public static Point operator +(int scalar, Point point)
         {
-            point.x += scalar;
-            point.y += scalar;
-            return point;
+            Point temp = new Point(point.x, point.y);
+            temp.x += scalar;
+            temp.y += scalar;
+            return temp;
         }
     }
 }
